@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import City
+from .forms import CityForm
 
 import requests
 # Create your views here.
@@ -11,6 +12,12 @@ def index(request):
 
     base_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='
     url = base_url + api_key
+
+    if request.method == 'POST':
+        form = CityForm(request.POST)
+        form.save()
+
+    form = CityForm()
 
     cities = City.objects.all()
 
@@ -30,7 +37,7 @@ def index(request):
 
     # print(weather_data)
 
-    context = {'weather_data': weather_data}
+    context = {'weather_data': weather_data, 'form': form}
     # print(context)
 
     return render(request, 'the_weather/weather.html', context)
