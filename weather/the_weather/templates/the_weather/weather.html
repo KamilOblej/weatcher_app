@@ -29,6 +29,9 @@
                             <div class="control is-expanded">
                                 <!-- <input type="text" class="input" placeholder="City Name"> -->
                                 {{ form.name }}
+                                {% if err_msg %}
+                                <p class="has-text-danger">{{ err_msg}}</p>
+                                {% endif %}
                             </div>
                             <div class="control">
                                 <button type="submit" class="button is-info">
@@ -63,6 +66,11 @@
                                     </p>
                                 </div>
                             </div>
+                            <div class="media-right">
+                                <a href="{% url 'delete_city' city_weather.city %}">
+                                    <button class="delete"></button>
+                                </a>
+                            </div>
                         </article>
                     </div>
                     {% endfor %}
@@ -70,8 +78,6 @@
             </div>
         </div>
     </section>
-    <footer class="footer">
-    </footer>
 </body>
 
 </html>

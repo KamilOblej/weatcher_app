@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import City
 from .forms import CityForm
 
@@ -13,9 +13,22 @@ def index(request):
     base_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='
     url = base_url + api_key
 
+    err_msg = ''
+
     if request.method == 'POST':
         form = CityForm(request.POST)
-        form.save()
+
+        if form.is_valid():
+            new_city = form.cleaned_data['name']
+            existing_city_count = City.objects.filter(name=new_city).count()
+            if existing_city_count == 0:
+                r = requests.get(url.format(new_city)).json()
+                if r['cod'] == 200:
+                    form.save()
+                else:
+                    err_msg = 'Oh, Wrong city name!'
+            else:
+                err_msg = 'City already exist in the database!'
 
     form = CityForm()
 
@@ -37,7 +50,14 @@ def index(request):
 
     # print(weather_data)
 
-    context = {'weather_data': weather_data, 'form': form}
+    context = {'weather_data': weather_data,
+               'form': form,
+               'err_msg': err_msg}
     # print(context)
 
     return render(request, 'the_weather/weather.html', context)
+
+
+def delete_city(request, city_name):
+    City.objects.get(name=city_name).delete()
+    return redirect('home')
