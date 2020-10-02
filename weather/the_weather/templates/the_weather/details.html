@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>London Weather</title>
+    <title>{{ city_weather.city}} Weather</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.css" />
 </head>
 
@@ -58,24 +58,22 @@
                 <span class="title"> Forecast</span>
                 <br><br>
                 <div class="columns">
+                    {% for forecast in weekly_forecast %}
                     <div class="column is-2 box">
-                        1
+                        <span class="subtitle">
+                            {{ forecast.utc_date}}
+                        </span>
+                        <img class=" image is-64x64" src="http://openweathermap.org/img/w/{{ forecast.icon }}.png">
+                        <br>
+                        At day {{ forecast.day_temperature}}° C
+                        <br>
+                        At Night {{ forecast.night_temperature }}° C
+                        <br>
+                        Humidity {{ forecast.humidity }}%
+                        <br>
+                        Pressure {{ forecast.pressure }}hPa
                     </div>
-                    <div class="column is-2 box">
-                        2
-                    </div>
-                    <div class="column is-2 box">
-                        3
-                    </div>
-                    <div class="column is-2 box">
-                        4
-                    </div>
-                    <div class="column is-2 box">
-                        5
-                    </div>
-                    <div class="column is-2 box">
-                        6
-                    </div>
+                    {% endfor %}
                     <br>
                 </div>
             </div>

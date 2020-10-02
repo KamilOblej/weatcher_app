@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import City
 from .forms import CityForm
+from datetime import datetime
 
 import requests
 # Create your views here.
@@ -67,7 +68,14 @@ def get_back(request):
 
 
 def details(request, city_name):
+
+    forecast_url = "https://api.openweathermap.org/data/2.5/onecall?lat=53.43&lon=14.55&exclude=hourly,minutely&units=metric&appid=" + api_key
+
     r = requests.get(url.format(city_name)).json()
+    fr = requests.get(forecast_url.format(city_name)).json()
+
+    lat = r['coord']['lat']
+    lon = r['coord']['lon']
 
     city_weather = {
         'city': city_name,
@@ -83,7 +91,33 @@ def details(request, city_name):
         'wind_deg': r['wind']['deg'],
     }
 
+    weekly_forecast = []
+    i = 0
+    for days in range(6):
+        i += 1
+        day_forecast = {
+            # 'date': fr['daily'][3]['dt'],
+            'utc_date': datetime.utcfromtimestamp(fr['daily'][i]['dt']).strftime('%Y-%m-%d'),
+            'icon': fr['daily'][i]['weather'][0]['icon'],
+            'day_temperature': fr['daily'][i]['temp']['day'],
+            'night_temperature': fr['daily'][0]['temp']['night'],
+            'humidity': fr['daily'][i]['humidity'],
+            'pressure': fr['daily'][i]['pressure'],
+        }
+        weekly_forecast.append(day_forecast)
+
+    # forecast = {
+    #     # 'date': fr['daily'][3]['dt'],
+    #     'utc_date': datetime.utcfromtimestamp(fr['daily'][0]['dt']).strftime('%Y-%m-%d'),
+    #     'icon': fr['daily'][0]['weather'][0]['icon'],
+    #     'day_temperature': fr['daily'][0]['temp']['day'],
+    #     'night_temperature': fr['daily'][0]['temp']['night'],
+    #     'humidity': fr['daily'][0]['humidity'],
+    #     'pressure': fr['daily'][0]['pressure'],
+    # }
+
     context = {
         'city_weather': city_weather,
+        'weekly_forecast': weekly_forecast,
     }
     return render(request, 'the_weather/details.html', context)
