@@ -6,13 +6,11 @@ import requests
 # Create your views here.
 
 api_key = '0a449e1e45978ade3b750d5380634444'
+base_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='
+url = base_url + api_key
 
 
 def index(request):
-
-    base_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='
-    url = base_url + api_key
-
     err_msg = ''
 
     if request.method == 'POST':
@@ -23,6 +21,7 @@ def index(request):
             existing_city_count = City.objects.filter(name=new_city).count()
             if existing_city_count == 0:
                 r = requests.get(url.format(new_city)).json()
+                print(r)
                 if r['cod'] == 200:
                     form.save()
                 else:
@@ -61,3 +60,30 @@ def index(request):
 def delete_city(request, city_name):
     City.objects.get(name=city_name).delete()
     return redirect('home')
+
+
+def get_back(request):
+    return redirect('home')
+
+
+def details(request, city_name):
+    r = requests.get(url.format(city_name)).json()
+
+    city_weather = {
+        'city': city_name,
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+        'feels_like': r['main']['feels_like'],
+        'temp_min': r['main']['temp_min'],
+        'temp_max': r['main']['temp_max'],
+        'humidity': r['main']['humidity'],
+        'pressure': r['main']['pressure'],
+        'wind_speed': r['wind']['speed'],
+        'wind_deg': r['wind']['deg'],
+    }
+
+    context = {
+        'city_weather': city_weather,
+    }
+    return render(request, 'the_weather/details.html', context)
